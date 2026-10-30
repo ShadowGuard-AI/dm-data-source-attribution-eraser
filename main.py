@@ -83,12 +83,20 @@ def remove_metadata(data, remove_timestamps=False, remove_filepaths=False, remov
         if remove_timestamps:
             # Remove timestamp-related metadata (example patterns)
             modified_data = re.sub(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', '', modified_data) #example timestamp
+            # 10+ digit runs: Unix timestamps, but also long numeric IDs.
+            # There is no shape difference between them, so both go.
             modified_data = re.sub(r'\b\d{10,}\b', '', modified_data)  # Unix timestamps
             logging.info("Timestamps removed.")
         if remove_filepaths:
             # Remove file path-related metadata (example patterns)
             modified_data = re.sub(r'[a-zA-Z]:\\(?:[^\\\n]+\\)*[^\\\n]+', '', modified_data)  # Windows paths
-            modified_data = re.sub(r'\/([^\/]+\/)*[^\/]+', '', modified_data)  # Unix paths
+            # Unix paths: require at least one internal slash and allow only
+            # path characters (no spaces). The old pattern matched any slash
+            # plus everything up to the next slash or line content, so plain
+            # prose like "ratio 3/4 and ..." lost the rest of the phrase.
+            # Tradeoff: a slash date such as 2023/01/15 still looks exactly
+            # like a two-component path and is removed; a lone "3/4" is not.
+            modified_data = re.sub(r'/(?:[\w.\-]+/)+[\w.\-]*', '', modified_data)  # Unix paths
             logging.info("Filepaths removed.")
         if remove_servernames:
             # Remove server name-related metadata (example patterns)

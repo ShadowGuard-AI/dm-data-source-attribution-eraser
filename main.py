@@ -73,47 +73,58 @@ def remove_metadata(data, remove_timestamps=False, remove_filepaths=False, remov
         custom_patterns (str): Path to a file with custom regex patterns to remove.
 
     Returns:
-        str: The modified data with metadata removed.
+        tuple: The modified data and the number of values removed.
     """
     modified_data = data
+    removed = 0
 
     try:
-        import re  # Import regex here to avoid unnecessary dependency if not used
+        import re
+
+        def _sub(pattern, text, flags=0):
+            nonlocal removed
+            new_text, n = re.subn(pattern, '', text, flags=flags)
+            removed += n
+            return new_text
 
         if remove_timestamps:
-            # Remove timestamp-related metadata (example patterns)
-            modified_data = re.sub(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', '', modified_data) #example timestamp
+            # ISO timestamps with a T separator, with optional fraction and zone.
+            modified_data = _sub(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?', modified_data)
+            # Space separated full timestamps.
+            modified_data = _sub(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', modified_data)
+            # Date only forms.
+            modified_data = _sub(r'\b\d{4}-\d{2}-\d{2}\b', modified_data)
+            # Slash dates: day/month/year and year/month/day.
+            modified_data = _sub(r'\b\d{1,2}/\d{1,2}/\d{4}\b', modified_data)
+            modified_data = _sub(r'\b\d{4}/\d{1,2}/\d{1,2}\b', modified_data)
             # 10+ digit runs: Unix timestamps, but also long numeric IDs.
-            # There is no shape difference between them, so both go.
-            modified_data = re.sub(r'\b\d{10,}\b', '', modified_data)  # Unix timestamps
+            modified_data = _sub(r'\b\d{10,}\b', modified_data)
             logging.info("Timestamps removed.")
         if remove_filepaths:
-            # Remove file path-related metadata (example patterns)
-            modified_data = re.sub(r'[a-zA-Z]:\\(?:[^\\\n]+\\)*[^\\\n]+', '', modified_data)  # Windows paths
+            modified_data = _sub(r'[a-zA-Z]:\\(?:[^\\\n]+\\)*[^\\\n]+', modified_data)
             # Unix paths: require at least one internal slash and allow only
-            # path characters (no spaces). The old pattern matched any slash
-            # plus everything up to the next slash or line content, so plain
-            # prose like "ratio 3/4 and ..." lost the rest of the phrase.
-            # Tradeoff: a slash date such as 2023/01/15 still looks exactly
-            # like a two-component path and is removed; a lone "3/4" is not.
-            modified_data = re.sub(r'/(?:[\w.\-]+/)+[\w.\-]*', '', modified_data)  # Unix paths
+            # path characters (no spaces).
+            modified_data = _sub(r'/(?:[\w.\-]+/)+[\w.\-]*', modified_data)
             logging.info("Filepaths removed.")
         if remove_servernames:
-            # Remove server name-related metadata (example patterns)
-            modified_data = re.sub(r'\b[a-zA-Z0-9.-]+\.(com|net|org)\b', '', modified_data) #example domain
-            modified_data = re.sub(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b', '', modified_data)  # IP addresses
+            # Host names with any top level domain, including .io and .co.uk.
+            modified_data = _sub(r'\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b', modified_data)
+            modified_data = _sub(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b', modified_data)
+            # Bare server names: a hyphenated or plain token containing the
+            # word server, such as db-server-01 or server-01.
+            modified_data = _sub(r'\b[a-zA-Z][a-zA-Z0-9-]*server[a-zA-Z0-9-]*\b', modified_data, flags=re.IGNORECASE)
             logging.info("Server names removed.")
 
         if custom_patterns:
             try:
                 with open(custom_patterns, 'r') as f:
-                    patterns = [line.strip() for line in f if line.strip()] #read patterns from file
+                    patterns = [line.strip() for line in f if line.strip()]
             except FileNotFoundError:
                 logging.error(f"Custom pattern file not found: {custom_patterns}")
                 raise
             for pattern in patterns:
                 try:
-                   modified_data = re.sub(pattern, '', modified_data)
+                   modified_data = _sub(pattern, modified_data)
                 except re.error as e:
                     logging.error(f"Invalid custom regex pattern: {pattern} - {e}")
                     raise
@@ -123,7 +134,7 @@ def remove_metadata(data, remove_timestamps=False, remove_filepaths=False, remov
         logging.error(f"Required dependency missing: {e}. Please install it (e.g., pip install re).")
         raise
 
-    return modified_data
+    return modified_data, removed
 
 def process_file(input_path, output_path, remove_timestamps=False, remove_filepaths=False, remove_servernames=False, custom_patterns=None, dry_run=False):
     """
@@ -138,23 +149,33 @@ def process_file(input_path, output_path, remove_timestamps=False, remove_filepa
         custom_patterns (str): Path to a file with custom regex patterns to remove.
         dry_run (bool): Whether to perform a dry run without modifying data.
     """
+    if os.path.realpath(input_path) == os.path.realpath(output_path):
+        logging.error("Output file must not be the same as the input file.")
+        raise ValueError("Output file must not be the same as the input file.")
     try:
         with open(input_path, 'r', encoding='utf-8') as infile:
             data = infile.read()
 
-        anonymized_data = remove_metadata(data, remove_timestamps, remove_filepaths, remove_servernames, custom_patterns)
+        anonymized_data, removed = remove_metadata(data, remove_timestamps, remove_filepaths, remove_servernames, custom_patterns)
 
         if dry_run:
             logging.info(f"Dry run: Metadata removal would be applied to {input_path}.")
-            return
+            return removed
+
+        if removed == 0:
+            logging.error("No values were removed.")
+            return 0
 
         with open(output_path, 'w', encoding='utf-8') as outfile:
             outfile.write(anonymized_data)
 
         logging.info(f"Anonymized data written to {output_path}")
+        return removed
 
     except FileNotFoundError:
         logging.error(f"Input file not found: {input_path}")
+        raise
+    except ValueError:
         raise
     except Exception as e:
         logging.error(f"Error processing file {input_path}: {e}")
@@ -173,26 +194,32 @@ def process_directory(input_dir, output_dir, remove_timestamps=False, remove_fil
         custom_patterns (str): Path to a file with custom regex patterns to remove.
         dry_run (bool): Whether to perform a dry run without modifying data.
     """
+    if os.path.realpath(input_dir) == os.path.realpath(output_dir):
+        logging.error("Output directory must not be the same as the input directory.")
+        raise ValueError("Output directory must not be the same as the input directory.")
+    total_removed = 0
     try:
         if not os.path.exists(output_dir):
             if not dry_run:
                 os.makedirs(output_dir)
             else:
                 logging.info(f"Dry run: Would create output directory {output_dir}.")
-        
+
         for filename in os.listdir(input_dir):
             input_path = os.path.join(input_dir, filename)
             output_path = os.path.join(output_dir, filename)
 
             if os.path.isfile(input_path):
-                process_file(input_path, output_path, remove_timestamps, remove_filepaths, remove_servernames, custom_patterns, dry_run)
+                total_removed += process_file(input_path, output_path, remove_timestamps, remove_filepaths, remove_servernames, custom_patterns, dry_run) or 0
             elif os.path.isdir(input_path):
-                # Recursively process subdirectories
                 new_output_dir = os.path.join(output_dir, filename)
-                process_directory(input_path, new_output_dir, remove_timestamps, remove_filepaths, remove_servernames, custom_patterns, dry_run) # recursively call itself for subdirectories
+                total_removed += process_directory(input_path, new_output_dir, remove_timestamps, remove_filepaths, remove_servernames, custom_patterns, dry_run) or 0
+        return total_removed
 
     except OSError as e:
         logging.error(f"Error processing directory {input_dir}: {e}")
+        raise
+    except ValueError:
         raise
     except Exception as e:
         logging.error(f"Unexpected error in directory processing: {e}")
@@ -217,13 +244,31 @@ def main():
         logging.error(f"Input path does not exist: {input_path}")
         sys.exit(1)
 
+    if not (remove_timestamps or remove_filepaths or remove_servernames or custom_patterns):
+        logging.error("No removal option was selected. No values were removed.")
+        sys.exit(1)
+
+    if os.path.isfile(input_path) and os.path.realpath(input_path) == os.path.realpath(output_path):
+        logging.error("Output file must not be the same as the input file.")
+        sys.exit(1)
+    if os.path.isdir(input_path) and os.path.realpath(input_path) == os.path.realpath(output_path):
+        logging.error("Output directory must not be the same as the input directory.")
+        sys.exit(1)
+
     try:
         if os.path.isfile(input_path):
-            process_file(input_path, output_path, remove_timestamps, remove_filepaths, remove_servernames, custom_patterns, dry_run)
+            total_removed = process_file(input_path, output_path, remove_timestamps, remove_filepaths, remove_servernames, custom_patterns, dry_run)
         elif os.path.isdir(input_path):
-            process_directory(input_path, output_path, remove_timestamps, remove_filepaths, remove_servernames, custom_patterns, dry_run)
+            total_removed = process_directory(input_path, output_path, remove_timestamps, remove_filepaths, remove_servernames, custom_patterns, dry_run)
         else:
             logging.error(f"Invalid input path: {input_path}.  Must be a file or directory.")
+            sys.exit(1)
+
+        if not dry_run and not total_removed:
+            logging.error("No values were removed.")
+            sys.exit(1)
+        if dry_run and not total_removed:
+            logging.error("No values were removed.")
             sys.exit(1)
 
         logging.info("Data source attribution erasure completed.")

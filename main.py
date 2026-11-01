@@ -77,6 +77,15 @@ def remove_metadata(data, remove_timestamps=False, remove_filepaths=False, remov
     """
     modified_data = data
     removed = 0
+    # The four groups below always run in this fixed order: timestamps,
+    # filepaths, server names, then custom patterns, each over the output
+    # of the group before it. Order is not decoration here. A date inside a
+    # path is already gone when the path pattern looks, and the server name
+    # pattern, which matches any dotted word pair, also eats plain file
+    # names with extensions, like notes.txt, when it runs. Every removal is
+    # a substitution with an empty string, so the spaces and punctuation
+    # around a removed value stay behind in the text. The count is a count
+    # of matches, not of distinct values.
 
     try:
         import re
@@ -205,6 +214,11 @@ def process_directory(input_dir, output_dir, remove_timestamps=False, remove_fil
             else:
                 logging.info(f"Dry run: Would create output directory {output_dir}.")
 
+        # Directory mode follows different rules from single file mode, and
+        # I want that plain: a file in which nothing matches is not written
+        # to the output directory at all, and it does not fail the run. Only
+        # the total across the whole tree decides success in main, so an
+        # output directory can legitimately hold fewer files than the input.
         for filename in os.listdir(input_dir):
             input_path = os.path.join(input_dir, filename)
             output_path = os.path.join(output_dir, filename)

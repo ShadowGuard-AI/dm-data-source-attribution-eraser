@@ -3,164 +3,150 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dm Data Source Attribution Eraser: what it is, how it runs, where it stops</title>
-<meta name="description" content="Dm Data Source Attribution Eraser is one of my projects. The README in the repo is short, so this page sticks to what the files themselves show.">
+<title>dm-data-source-attribution-eraser: The Carthage Harbor Chain</title>
 <style>
-:root {
-  --bg: #121418; --panel: #1c2028; --ink: #e8ecf0;
-  --mut: #252b36;
-  --acc: #5cc8e0; --acc2: #f0a05c;
-  --line: #1c2028;
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink);
-  font-family: Charter, Georgia, serif; line-height: 1.55; }
-code, pre, .mono { font-family: 'DejaVu Sans Mono', monospace; }
-a { color: var(--acc2); }
-.hero { padding: 3rem 6vw 1rem; }
-.hero img.banner { width: 100%; height: auto; border: 1px solid var(--line);
-  border-radius: 10px; }
-.logo { width: 92px; height: 92px; border-radius: 18px;
-  border: 1px solid var(--line); }
-h1 { font-size: 2.4rem; margin: 0.4em 0 0.1em; }
-h2 { border-bottom: 2px solid var(--acc); padding-bottom: 0.2em;
-  margin-top: 2em; }
-.lede { font-size: 1.15rem; max-width: 62ch; }
-main { padding: 0 6vw 3rem; max-width: 1180px; margin: 0 auto; }
-.grid { display: grid; gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-.card { background: var(--panel); border: 1px solid var(--line);
-  border-radius: 12px; padding: 1rem 1.2rem; }
-.card.pop { animation: rise 0.7s ease both; }
-@keyframes rise { from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; } }
-pre.code { background: #101014; color: #e8e6df; padding: 1rem 1.2rem;
-  border-radius: 12px; overflow-x: auto; font-size: 0.86rem;
-  border-left: 5px solid var(--acc); }
-table { border-collapse: collapse; width: 100%; }
-td, th { border-bottom: 1px solid var(--line); padding: 0.45rem 0.6rem;
-  text-align: left; }
-.shots { display: grid; gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-.shots img { width: 100%; height: auto; border: 1px solid var(--line);
-  border-radius: 10px; background: #f4f1e8; }
-footer { padding: 2rem 6vw; border-top: 1px solid var(--line);
-  color: var(--mut); }
-.rail { display: flex; gap: 1.2rem; align-items: flex-start; }
-.rail nav { position: sticky; top: 1rem; min-width: 180px; }
-@media (max-width: 760px) { .rail { flex-direction: column; }
-  .rail nav { position: static; } }
-@media (prefers-reduced-motion: reduce) {
-  .card.pop { animation: none; } * { scroll-behavior: auto; } }
+@font-face { font-family: "Caprasimo"; src: url("fonts/Caprasimo.ttf") format("truetype"); }
+@font-face { font-family: "Bitter"; src: url("fonts/Bitter.ttf") format("truetype"); }
+body { margin: 0; background: #e8dcc0; color: #33291d; font-family: "Bitter", Georgia, serif; }
+header, main, footer { max-width: 980px; margin: 0 auto; padding: 24px; }
+h1, h2 { font-family: "Caprasimo", Georgia, serif; color: #282018; font-weight: normal; }
+h1 { font-size: 2.3rem; line-height: 1.15; }
+h2 { font-size: 1.6rem; border-bottom: 3px solid #282018; padding-bottom: 6px; }
+.plate { background: #dccdaa; border: 2px solid #282018; border-radius: 18px 4px 18px 4px; padding: 20px 24px; margin: 26px 0; }
+.seal { display: inline-block; background: #9a3428; color: #e8dcc0; border-radius: 50%; width: 30px; height: 30px; line-height: 30px; text-align: center; font-family: "Caprasimo", serif; margin-right: 10px; }
+.marker { color: #2e4a7a; font-family: "Caprasimo", serif; }
+code, pre { font-family: "Bitter", monospace; background: #efe6cc; padding: 2px 6px; }
+pre { padding: 16px; overflow-x: auto; white-space: pre-wrap; }
+pre.record { background: #efe6cc; border: 2px solid #282018; }
+img { max-width: 100%; height: auto; display: block; margin: 12px auto; }
+.chainlink-btn { font-family: "Caprasimo", serif; background: #8c6a4a; color: #282018; border: 2px solid #b8a888; border-radius: 40px; padding: 12px 26px; font-size: 1.05rem; cursor: pointer; }
+.chainlink-btn:hover { background: #c99a58; color: #100d0a; }
+.chainlink-btn:active { background: #9a3428; color: #e8dcc0; }
+.chainlink-btn:focus { outline: 3px solid #2e4a7a; outline-offset: 3px; }
+label { font-family: "Caprasimo", serif; display: block; margin-top: 14px; }
+input { width: 100%; padding: 9px; background: #efe6cc; border: 2px solid #282018; }
+.absence { border: 3px dashed #9a3428; padding: 28px; text-align: center; font-size: 1.15rem; background: #efe6cc; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid #282018; padding: 9px; text-align: left; vertical-align: top; }
+th { font-family: "Caprasimo", serif; font-weight: normal; background: #cbb798; }
 </style>
 </head>
-<body class="layout-note">
-<!-- This page exists for dm-data-source-attribution-eraser alone: the layout (notebook),
-     the colors, and the type were picked for this project, not
-     shared with the other project pages. The code block below is
-     copied from the file it names, line for line. If it looks
-     plain, that is because the project is plain, and I would
-     rather the page match the project than dress it up. The one
-     thing I will not do here is oversell: what this project does
-     not do is stated on the page, not hidden from it. -->
-<header class="hero">
-  <img class="logo" src="assets/logo.png" alt="Dm Data Source Attribution Eraser logo">
-  <img class="banner" src="assets/banner.png" alt="">
-  <h1>Dm Data Source Attribution Eraser</h1>
-  <p class="mono"><a href="https://github.com/ShadowGuard-AI/dm-data-source-attribution-eraser">github.com/ShadowGuard-AI/dm-data-source-attribution-eraser</a></p>
+<body>
+<header>
+<h1>dm-data-source-attribution-eraser: The Carthage Harbor Chain</h1>
+<p>A harbor log kept watch by watch, each plate one watch of the closing. Ground in parchment, panels darkened one step toward tablet wood, headings in Caprasimo in iron gall, body copy in Bitter in iron gall softened one step. Medieval madder stands on the seal markers and the removal plates, woad on the tessellated floor section markers, and iron gall holds every rule.</p>
+<img src="intro-banner.png" alt="One enormous wet black chain link where the chain leaves the tower, tally table and tessellated floors behind it, amphorae along the quay, no writing anywhere">
+<img src="logo.png" alt="One link of a harbor chain with a madder tally thread, the repository name below it">
 </header>
-
 <main>
-  <section class="rail">
-    <nav aria-label="on this page">
-      <p class="mono"><a href="#run">Run it</a><br>
-      <a href="#files">The files</a><br>
-      <a href="#sheets">The sheets</a><br>
-      <a href="https://github.com/ShadowGuard-AI/dm-data-source-attribution-eraser">The repo</a></p>
-    </nav>
-    <div>
-      <p class="lede">Dm Data Source Attribution Eraser is one of my projects. The README in the repo is short, so this page sticks to what the files themselves show.</p>
-      <div class="grid">
-        <div class="card pop"><h3>What it is</h3>
-          <p>Dm Data Source Attribution Eraser: 5 files, 265 counted
-          lines across Python 241, Markdown 23, Text 1. One job, done in the
-          open, in files you can read.</p></div>
-        <div class="card pop"><h3>The biggest piece</h3>
-          <p><code>main.py</code> carries the most
-          lines. If the project grows, that file is where the growth
-          lands first, for better or worse.</p></div>
-        <div class="card pop"><h3>The honest gap</h3>
-          <p>No test files yet. That is the honest gap, and the roadmap in the visuals folder says what the first one should cover.</p></div>
-      </div>
-      <section id="run">
-        <h2>Run it</h2>
-        <p>The repo README has the exact commands for this one. The
-        shape is the shape for most of my projects: clone it, read the
-        top file first so you know what will happen, then run it on
-        something you do not mind breaking.</p>
-        <p class="mono">$ git clone https://github.com/ShadowGuard-AI/dm-data-source-attribution-eraser.git<br>$ cd dm-data-source-attribution-eraser</p>
-      </section>
-      
-  <section aria-label="real code">
-    <h2>The code, as it sits in the repo</h2>
-    <p>From <code>main.py</code>, line 8 on. I did
-    not tidy it for the page. What you see is what the file has.</p>
-    <pre class="code"><code>logging.basicConfig(level=logging.INFO, format=&#x27;%(asctime)s - %(levelname)s - %(message)s&#x27;)
+<section class="plate">
+<h2><span class="seal">1</span>First watch: the job</h2>
+<p>The program removes or modifies metadata associated with data sources, giving database server names, file paths, and timestamps as its named examples. It does so because such traces let attackers map masked data back to its original source, or infer information about the lineage of the data or its update frequency.</p>
+<p>The family sentence stands as the record prints it: this tool belongs with tools designed to generate or mask sensitive data with realistic looking but meaningless values.</p>
+<p>No real server name, no real path, and no real timestamp from anyone's system is printed on this plate or anywhere on this site. The specimen forms named in the record are described by their shapes, and the shapes alone are carried here.</p>
+<img src="banner.png" alt="The harbor at closing, chain leaving the tower, tally board at the tower door carrying the sole readable lettering">
+</section>
+<section class="plate">
+<h2><span class="marker">2</span> Second watch: fetching, with one plain repair</h2>
+<p>Fetch the repository with the corrected line, labelled a correction:</p>
+<p><code>git clone https://github.com/ShadowGuard-AI/dm-data-source-attribution-eraser</code></p>
+<p>The address printed in the README writes the organisation name without its hyphen. A visitor who copies the printed line letter for letter arrives at a differently spelled house. The line above restores the hyphen and is a correction, never original wording.</p>
+</section>
+<section class="plate">
+<h2><span class="seal">3</span>Third watch: the invocation shape</h2>
+<p><code>./dm-data-source-attribution-eraser [params]</code></p>
+<p>Program first, bracketed parameters after, and the plate stops at the shape.</p>
+<div class="absence">Absence, printed at full size: the source publishes no worked call naming an actual file or directory, so this plate invents none. The margin of the log at this place is left respectfully blank.</div>
+</section>
+<section class="plate">
+<h2><span class="marker">4</span> Fourth watch: the eight controls, in record order</h2>
+<ol>
+<li><code>-h</code>: Show help message and exit.</li>
+<li><code>--input</code>: Path to the input file/directory containing data source metadata.</li>
+<li><code>--output</code>: Path to the output file/directory where anonymized data will be written.</li>
+<li><code>--remove-timestamps</code>: Remove timestamp-related metadata.</li>
+<li><code>--remove-filepaths</code>: Remove file path-related metadata.</li>
+<li><code>--remove-servernames</code>: Remove server name-related metadata.</li>
+<li><code>--custom-patterns</code>: Path to a file containing custom regex patterns to remove. Each pattern should be on a new line.</li>
+<li><code>--dry-run</code>: Perform a dry run without modifying any data. Useful for testing the configuration.</li>
+</ol>
+<div class="absence">Absence, printed at full size: no default is printed for any of these flags in the source, so this plate prints none.</div>
+<form>
+<label for="inp">Input Path</label>
+<input id="inp" type="text">
+<label for="outp">Output Path</label>
+<input id="outp" type="text">
+<p><button class="chainlink-btn" type="button">Strike the Attribution</button> <button class="chainlink-btn" type="button">Dry Run First</button></p>
+</form>
+</section>
+<section class="plate">
+<h2><span class="seal">5</span>Fifth watch: the covered forms, by shape</h2>
+<p>For timestamps the source covers five shapes: the ISO form with a T separator, with optional fractional seconds and zone; the space separated form; the date only form; slash dates in both orders; and digit runs of ten or more digits. The record carries labelled specimen examples of these shapes in its covered forms paragraph. This plate describes them by kind and location only, and does not repeat the specimens.</p>
+<p>For server names it covers three shapes: host names with any top level domain, naming five suffixes in the record, among them .com, .net, .org, and .io, together with a two part national suffix; IP addresses; and bare server names that contain the word server, for which the record gives one numbered specimen that this plate describes by kind and does not repeat.</p>
+<p>The claim and the list stand side by side exactly as the record leaves them: the paragraph opens with any top level domain and then names its suffixes, and whether that list is a census or a sample is left unresolved here, exactly as printed.</p>
+</section>
+<section class="plate">
+<h2><span class="marker">6</span> Sixth watch: the two guards, at full size</h2>
+<h3>The Chain Refuses This Passage</h3>
+<p>First guard, the paths. The output file or directory must not be the input file or directory. A run that names the same path for both, in any spelling that resolves to the same path, is refused at exit 1 before any write. A card that reports a refused run carries a small seal in its top corner, pressed and unbroken; no other card carries that seal.</p>
+<p>Second guard, the work itself. At least one removal option must be selected. A run with no removal option, or a run that removes no values, exits 1 with a plain line naming that nothing was removed, writes no output file for that input, and does not log a completed line.</p>
+</section>
+<section class="plate">
+<h2><span class="seal">7</span>Seventh watch: two licence facts, kept apart</h2>
+<p>First, the repository LICENSE file itself: MIT terms, dated 2025 to 2026, its holder described by outline only, as a pen name of two words followed by a bracketed shortened given name and then the handle held in parentheses. The full wording of that holder line is not reproduced on this site.</p>
+<p>Second, labelled as a site correction: the README closing line respelled with the hyphen restored to the organisation name, where the published line wrote that name unhyphenated. Corrected form: <code>Copyright (c) ShadowGuard-AI</code>. This corrected form is a site correction, not the record wording.</p>
+</section>
+<section class="plate">
+<h2><span class="marker">8</span> Eighth watch: the tally table</h2>
+<p>A harbor custom no sibling site copies: a visitor's errand is counted out on the abacus before any chain is touched.</p>
+<table>
+<tr><th>Visitor errand</th><th>Watch counted at the table</th></tr>
+<tr><td>A visitor who fears lineage</td><td>The removal watch: three flags laid like three beads, timestamps, file paths, server names, each with its covered forms beneath it.</td></tr>
+<tr><td>A visitor who trusts nothing</td><td>The dry run watch: the whole closing rehearsed with the chain left in its tower and no data modified.</td></tr>
+<tr><td>A visitor with private patterns of their own</td><td>The custom patterns watch: one pattern to a line, counted bead by bead.</td></tr>
+<tr><td>A visitor who has made the classic error</td><td>The refusal watch: same path in and out, or nothing chosen to remove, and the plain exit 1 line read aloud without softening.</td></tr>
+</table>
+<p>Archivists, incident responders, dataset publishers, careful engineers: each has their errand counted honestly at the table, the count agreed before the work begins, and nothing struck from the tally after it.</p>
+<img src="scene.svg" alt="Animated scene in three bands: harbor mouth, tally table, quay">
+</section>
+<section class="plate">
+<h2>The harbor record, housed whole</h2>
+<p>The live README, carried verbatim in the block below. Its specimen form examples appear only inside this preserved record, which is where they belong.</p>
+<pre class="record">![Banner](banner.png)
 
-def setup_argparse():
-    &quot;&quot;&quot;
-    Sets up the argument parser for the command-line interface.
-    &quot;&quot;&quot;
-    parser = argparse.ArgumentParser(
-        description=&quot;Removes or modifies metadata associated with data sources.&quot;
-    )
+# dm-data-source-attribution-eraser
+Removes or modifies metadata associated with data sources (e.g., database server names, file paths, timestamps). Prevents attackers from easily mapping masked data back to its original source or inferring information about the data's lineage or update frequency. - Focused on Tools designed to generate or mask sensitive data with realistic-looking but meaningless values
 
-    # Add arguments for file input/output
-    parser.add_argument(
-        &quot;--input&quot;,
-        &quot;-i&quot;,
-        type=str,
-        required=True,
-        help=&quot;Path to the input file/directory containing data source metadata.&quot;
-    )
-    parser.add_argument(
-        &quot;--output&quot;,
-        &quot;-o&quot;,
-        type=str,</code></pre>
-  </section>
-      <section id="files">
-        <h2>The files that matter</h2>
-        <table><tr><th>File</th><th>Lines</th></tr>
-        <tr><td><code>main.py</code></td><td>241</td></tr>
-        <tr><td><code>README.md</code></td><td>23</td></tr>
-        <tr><td><code>requirements.txt</code></td><td>1</td></tr>
-        <tr><td><code>banner.png</code></td><td>0</td></tr>
-        <tr><td><code>logo.png</code></td><td>0</td></tr>
-        </table>
-        <p>Names doing the work: <span class="mono">setup_argparse, remove_metadata, process_file, process_directory, main</span>.</p>
-      </section>
-      <section id="sheets">
-        <h2>Drawn by hand</h2>
-        <p>I sketch my projects on notebook paper so I have to
-        understand them well enough to draw them. The full set,
-        with the counts and how they were counted, is the
-        <a href="https://github.com/ShadowGuard-AI/dm-data-source-attribution-eraser/tree/main/dm-data-source-attribution-eraser-Visuals">dm-data-source-attribution-eraser-Visuals</a>
-        folder in the repo. Nothing is drawn over the binder holes.
-        That is a rule, not a style.</p>
-        <div class="shots">
-          <img src="assets/architecture.png" alt="Hand drawn architecture sheet for Dm Data Source Attribution Eraser">
-          <img src="assets/flowchart.png" alt="Hand drawn flowchart sheet for Dm Data Source Attribution Eraser">
-          <img src="assets/product-map.png" alt="Hand drawn product map sheet for Dm Data Source Attribution Eraser">
-        </div>
-      </section>
-    </div>
-  </section>
+## Install
+`git clone https://github.com/ShadowGuardAI/dm-data-source-attribution-eraser`
+
+## Usage
+`./dm-data-source-attribution-eraser [params]`
+
+## Parameters
+- `-h`: Show help message and exit
+- `--input`: Path to the input file/directory containing data source metadata.
+- `--output`: Path to the output file/directory where anonymized data will be written.
+- `--remove-timestamps`: Remove timestamp-related metadata.
+- `--remove-filepaths`: Remove file path-related metadata.
+- `--remove-servernames`: Remove server name-related metadata.
+- `--custom-patterns`: Path to a file containing custom regex patterns to remove. Each pattern should be on a new line.
+- `--dry-run`: Perform a dry run without modifying any data. Useful for testing the configuration.
+
+The output file or directory must not be the input file or directory. A run that names the same path for both, in any spelling that resolves to the same path, is refused at exit 1 before any write.
+
+At least one removal option must be selected. A run with no removal option, or a run that removes no values, exits 1 with a plain line naming that nothing was removed, writes no output file for that input, and does not log a completed line.
+
+Covered timestamp forms: ISO timestamps with a T separator (2023-01-15T10:30:00, with optional fractional seconds and zone), space separated timestamps (2023-01-15 10:30:00), date only forms (2023-01-15), slash dates (15/01/2023 and 2023/01/15), and digit runs of ten or more digits.
+
+Covered server name forms: host names with any top level domain, including .com, .net, .org, .io, and .co.uk, IP addresses, and bare server names that contain the word server, such as db-server-01.
+
+## License
+Copyright (c) ShadowGuardAI</pre>
+</section>
 </main>
 <footer>
-  <p>Dm Data Source Attribution Eraser is one of my projects. This page was written
-  from the repo itself on 2026-10-30: the counts are the
-  repo's counts, the code is the repo's code, and the gaps are the
-  repo's gaps.</p>
+<p>dm-data-source-attribution-eraser: The Carthage Harbor Chain. The chain link at rest in lamplight, the record kept, the harbor shut for the night.</p>
 </footer>
 </body>
 </html>

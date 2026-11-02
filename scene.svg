@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-label="The harbor chain at closing, in three bands: the harbor mouth, the tally table, and the quay">
+  <rect width="1200" height="360" fill="#e8dcc0"/>
+  <!-- Outermost band: the harbor mouth. The chain rests where the crew hauled it. The water stirs against the iron. -->
+  <rect x="0" y="0" width="1200" height="120" fill="#2e4a7a"/>
+  <g stroke="#a8c0e0" stroke-width="2" opacity="0.55">
+    <path d="M20 88 q30 -8 60 0 t60 0 t60 0" fill="none">
+      <animate attributeName="opacity" values="0.25;0.7;0.25" dur="5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M700 100 q30 -8 60 0 t60 0 t60 0 t60 0" fill="none">
+      <animate attributeName="opacity" values="0.7;0.25;0.7" dur="6s" repeatCount="indefinite"/>
+    </path>
+    <path d="M240 104 q30 -8 60 0 t60 0" fill="none">
+      <animate attributeName="opacity" values="0.3;0.65;0.3" dur="7s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  <g fill="none" stroke="#282018" stroke-width="13">
+    <ellipse cx="330" cy="52" rx="52" ry="30"/>
+    <ellipse cx="428" cy="58" rx="52" ry="30"/>
+    <ellipse cx="526" cy="52" rx="52" ry="30"/>
+    <ellipse cx="624" cy="58" rx="52" ry="30"/>
+  </g>
+  <g fill="none" stroke="#f0e8cc" stroke-width="3" opacity="0.8">
+    <path d="M292 34 a52 30 0 0 1 44 -10"/>
+    <path d="M488 34 a52 30 0 0 1 44 -10"/>
+  </g>
+  <rect x="880" y="6" width="150" height="108" fill="#6a5c46" stroke="#282018" stroke-width="4"/>
+  <rect x="906" y="42" width="98" height="72" fill="#100d0a"/>
+  <text x="16" y="34" font-family="Georgia, serif" font-size="17" fill="#e8dcc0">First band: the harbor mouth</text>
+  <!-- Midmost band: the tally table. A hand pushes abacus beads along their rods, bead after bead, and halts when the tallies reconcile. -->
+  <rect x="0" y="120" width="1200" height="120" fill="#cbb798"/>
+  <rect x="300" y="176" width="620" height="18" fill="#765838"/>
+  <rect x="330" y="194" width="16" height="42" fill="#5c4228"/>
+  <rect x="874" y="194" width="16" height="42" fill="#5c4228"/>
+  <rect x="356" y="140" width="80" height="38" fill="#e8dcc0" stroke="#3a3024" stroke-width="3"/>
+  <g stroke="#3a3024" stroke-width="2"><path d="M366 152 h56"/><path d="M366 162 h42"/><path d="M366 172 h50"/></g>
+  <rect x="480" y="132" width="300" height="52" fill="#463420" stroke="#282018" stroke-width="3"/>
+  <g stroke="#e8dcc0" stroke-width="2"><path d="M492 146 h276"/><path d="M492 160 h276"/><path d="M492 174 h276"/></g>
+  <g fill="#9a3428" stroke="#282018">
+    <circle cx="520" cy="146" r="7"><animate attributeName="cx" values="520;560;560" dur="4s" repeatCount="indefinite"/></circle>
+    <circle cx="600" cy="146" r="7"><animate attributeName="cx" values="600;636;636" dur="4s" begin="0.6s" repeatCount="indefinite"/></circle>
+    <circle cx="540" cy="174" r="7"><animate attributeName="cx" values="540;584;584" dur="4s" begin="1.2s" repeatCount="indefinite"/></circle>
+  </g>
+  <g fill="#5474a4" stroke="#282018">
+    <circle cx="680" cy="160" r="7"><animate attributeName="cx" values="680;716;716" dur="4s" begin="0.3s" repeatCount="indefinite"/></circle>
+    <circle cx="720" cy="174" r="7"><animate attributeName="cx" values="720;748;748" dur="4s" begin="0.9s" repeatCount="indefinite"/></circle>
+  </g>
+  <path d="M452 150 q14 -8 26 0 l0 12 q-13 7 -26 0 z" fill="#c49e76" stroke="#282018" stroke-width="2">
+    <animateTransform attributeName="transform" type="translate" values="0 0;38 0;38 0" dur="4s" repeatCount="indefinite"/>
+  </path>
+  <text x="16" y="154" font-family="Georgia, serif" font-size="17" fill="#282018">Second band: the tally table</text>
+  <!-- Innermost band: the quay. Two porters hoist an amphora, turn it one quarter turn, read its tally mark, and set it in its row. -->
+  <rect x="0" y="240" width="1200" height="120" fill="#d8c9a4"/>
+  <g>
+    <polygon points="60,300 74,300 70,288 84,288 92,306 86,330 78,344 70,330 62,306 68,288 56,288" fill="#b0804a" stroke="#282018" stroke-width="2"/>
+    <polygon points="130,300 144,300 140,288 154,288 162,306 156,330 148,344 140,330 132,306 138,288 126,288" fill="#a47040" stroke="#282018" stroke-width="2"/>
+    <polygon points="200,300 214,300 210,288 224,288 232,306 226,330 218,344 210,330 202,306 208,288 196,288" fill="#b0804a" stroke="#282018" stroke-width="2"/>
+  </g>
+  <rect x="40" y="344" width="220" height="8" fill="#3a3024"/>
+  <g>
+    <animateTransform attributeName="transform" type="rotate" values="0 620 300;90 620 300;90 620 300;0 620 300" keyTimes="0;0.4;0.8;1" dur="8s" repeatCount="indefinite"/>
+    <polygon points="606,262 634,262 628,272 640,292 632,322 620,336 608,322 600,292 612,272" fill="#b0804a" stroke="#282018" stroke-width="2"/>
+    <path d="M608 284 h24" stroke="#742420" stroke-width="3"/>
+  </g>
+  <circle cx="556" cy="272" r="11" fill="#c49e76" stroke="#282018" stroke-width="2"/>
+  <polygon points="542,284 570,284 574,330 538,330" fill="#60523e" stroke="#282018"/>
+  <rect x="542" y="302" width="32" height="10" fill="#9a3428"/>
+  <path d="M566 292 l44 -18" stroke="#c49e76" stroke-width="7"/>
+  <circle cx="684" cy="272" r="11" fill="#c49e76" stroke="#282018" stroke-width="2"/>
+  <polygon points="670,284 698,284 702,330 666,330" fill="#60523e" stroke="#282018"/>
+  <rect x="670" y="302" width="32" height="10" fill="#9a3428"/>
+  <path d="M674 292 l-40 -18" stroke="#c49e76" stroke-width="7"/>
+  <text x="16" y="274" font-family="Georgia, serif" font-size="17" fill="#282018">Third band: the quay</text>
+</svg>

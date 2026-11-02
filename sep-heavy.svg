@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="72" viewBox="0 0 1200 72" role="img" aria-label="Heavy separator: astrolabe rings settling into alignment, line colour from the banner palette, device from the theme">
+  <rect width="1200" height="72" fill="none"/>
+  <line x1="30" y1="36" x2="480" y2="36" stroke="#33ff66" stroke-width="3"/>
+  <line x1="720" y1="36" x2="1170" y2="36" stroke="#33ff66" stroke-width="3"/>
+  <line x1="30" y1="42" x2="480" y2="42" stroke="#ffb000" stroke-width="1.5"/>
+  <line x1="720" y1="42" x2="1170" y2="42" stroke="#ffb000" stroke-width="1.5"/>
+  <g fill="none" stroke="#a8f0ff" stroke-width="3">
+    <circle cx="600" cy="36" r="27">
+      <animate attributeName="r" values="30;27" dur="2.4s" fill="freeze"/>
+    </circle>
+    <circle cx="600" cy="36" r="19" stroke="#8a919c">
+      <animate attributeName="r" values="23;19" dur="2.4s" begin="0.3s" fill="freeze"/>
+    </circle>
+    <circle cx="600" cy="36" r="11" stroke="#33ff66">
+      <animate attributeName="r" values="16;11" dur="2.4s" begin="0.6s" fill="freeze"/>
+    </circle>
+  </g>
+  <circle cx="600" cy="36" r="3.5" fill="#ffb000"/>
+  <g fill="#33ff66"><circle cx="510" cy="36" r="3"/><circle cx="690" cy="36" r="3"/></g>
+</svg>
